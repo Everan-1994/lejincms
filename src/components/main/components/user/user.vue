@@ -3,13 +3,20 @@
     <Dropdown @on-click="handleClick">
       <Badge :dot="!!messageUnreadCount">
         <Avatar :src="userAvator"/>
+        乐进科技
       </Badge>
-      <Icon :size="18" type="md-arrow-dropdown"></Icon>
       <DropdownMenu slot="list">
         <DropdownItem name="message">
-          消息中心<Badge style="margin-left: 10px" :count="messageUnreadCount"></Badge>
+          <Icon type="ios-paper-plane-outline" />
+          系统设置
         </DropdownItem>
-        <DropdownItem name="logout">退出登录</DropdownItem>
+        <DropdownItem name="message">
+          <Icon type="ios-contact-outline" />
+          个人中心
+        </DropdownItem>
+        <DropdownItem name="logout" class="logout">
+          <Icon type="ios-log-out" /> 退出登录
+        </DropdownItem>
       </DropdownMenu>
     </Dropdown>
   </div>
@@ -57,3 +64,17 @@ export default {
   }
 }
 </script>
+
+<style>
+  .user-avator-dropdown {
+    width: auto;
+    padding: 0 12px;
+  }
+  .user-avator-dropdown:hover {
+    background: #f8f8f9;
+  }
+  .logout {
+    margin-top: 5px;
+    border-top: 1px solid #e8eaec;
+  }
+</style>

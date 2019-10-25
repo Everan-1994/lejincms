@@ -10,11 +10,11 @@
     </Sider>
     <Layout>
       <Header class="header-con">
-        <header-bar :collapsed="collapsed" @on-coll-change="handleCollapsedChange">
+        <header-bar :collapsed="collapsed" @on-coll-change="handleCollapsedChange" @refres-content="refreshPage">
           <user :message-unread-count="unreadCount" :user-avator="userAvator"/>
-          <language v-if="$config.useI18n" @on-lang-change="setLocal" style="margin-right: 10px;" :lang="local"/>
-          <error-store v-if="$config.plugin['error-store'] && $config.plugin['error-store'].showInHeader" :has-read="hasReadErrorPage" :count="errorCount"></error-store>
-          <fullscreen v-model="isFullscreen" style="margin-right: 10px;"/>
+          <!-- <language v-if="$config.useI18n" @on-lang-change="setLocal" style="margin-right: 10px;" :lang="local"/>-->
+          <!-- <error-store v-if="$config.plugin['error-store'] && $config.plugin['error-store'].showInHeader" :has-read="hasReadErrorPage" :count="errorCount"></error-store>-->
+          <!-- <fullscreen v-model="isFullscreen" style="margin-right: 10px;"/> -->
         </header-bar>
       </Header>
       <Content class="main-content-con">
@@ -22,7 +22,7 @@
           <div class="tag-nav-wrapper">
             <tags-nav :value="$route" @input="handleClick" :list="tagNavList" @on-close="handleCloseTag"/>
           </div>
-          <Content class="content-wrapper">
+          <Content class="content-wrapper" v-if="isRouterAlive">
             <keep-alive :include="cacheList">
               <router-view/>
             </keep-alive>
@@ -65,7 +65,8 @@ export default {
       collapsed: false,
       minLogo,
       maxLogo,
-      isFullscreen: false
+      isFullscreen: false,
+      isRouterAlive: true
     }
   },
   computed: {
@@ -146,6 +147,10 @@ export default {
     },
     handleClick (item) {
       this.turnToPage(item)
+    },
+    refreshPage (bool) {
+      this.isRouterAlive = bool
+      this.$nextTick(() => (this.isRouterAlive = true))
     }
   },
   watch: {

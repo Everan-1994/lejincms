@@ -44,3 +44,8 @@ export default {
   }
 }
 </script>
+<style>
+  .custom-bread-crumb {
+    margin-left: 5px;
+  }
+</style>

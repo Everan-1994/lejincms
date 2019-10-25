@@ -44,7 +44,7 @@ export default [
           hideInMenu: true,
           title: '首页',
           notCache: true,
-          icon: 'md-home'
+          icon: 'ios-home'
         },
         component: () => import('@/view/single-page/home')
       }

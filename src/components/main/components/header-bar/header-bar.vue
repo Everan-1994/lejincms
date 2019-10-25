@@ -1,7 +1,10 @@
 <template>
   <div class="header-bar">
     <sider-trigger :collapsed="collapsed" icon="md-menu" @on-change="handleCollpasedChange"></sider-trigger>
-    <custom-bread-crumb show-icon style="margin-left: 30px;" :list="breadCrumbList"></custom-bread-crumb>
+    <span @click="refreshPage" class="i-layout-header-trigger i-layout-header-trigger-min">
+      <Icon type="ios-refresh-circle-outline" />
+    </span>
+    <custom-bread-crumb show-icon :list="breadCrumbList"></custom-bread-crumb>
     <div class="custom-content-con">
       <slot></slot>
     </div>
@@ -28,7 +31,27 @@ export default {
   methods: {
     handleCollpasedChange (state) {
       this.$emit('on-coll-change', state)
+    },
+    refreshPage () {
+      this.$emit('refres-content', false)
     }
   }
 }
 </script>
+<style>
+  .i-layout-header-trigger-min {
+    padding: 0 5px;
+  }
+  .i-layout-header-trigger-min:hover {
+    background: #f8f8f9;
+  }
+  .i-layout-header-trigger {
+    display: inline-block;
+    width: 45px;
+    height: 64px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s ease-in-out;
+    vertical-align: top;
+  }
+</style>
