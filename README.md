@@ -14,3 +14,9 @@ yarn run dev
 ```
 yarn run build
 ```
+
+#### 文档阅读
+
+```
+https://everan-1994.github.io/lejincms-doc/#/
+```
