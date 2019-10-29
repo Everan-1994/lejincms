@@ -1,21 +1,22 @@
 <template>
   <div class="user-avator-dropdown">
-    <Dropdown @on-click="handleClick">
-      <Badge :dot="!!messageUnreadCount">
-        <Avatar :src="userAvator"/>
-        乐进科技
-      </Badge>
+    <Dropdown @on-click="handleClick"  @on-visible-change="down = !down">
+      <Avatar :src="userAvator"/>
+      乐进科技
+      <Icon type="md-arrow-dropdown" v-if="down"/>
+      <Icon type="md-arrow-dropup" v-else/>
       <DropdownMenu slot="list">
         <DropdownItem name="message">
-          <Icon type="ios-paper-plane-outline" />
-          系统设置
+          <Icon type="ios-contact-outline" size="16" />
+          <span style="margin-left: 3px;">个人中心</span>
         </DropdownItem>
         <DropdownItem name="message">
-          <Icon type="ios-contact-outline" />
-          个人中心
+          <Icon type="ios-settings-outline" size="16" />
+          <span style="margin-left: 3px;">设置</span>
         </DropdownItem>
-        <DropdownItem name="logout" class="logout">
-          <Icon type="ios-log-out" /> 退出登录
+        <DropdownItem name="logout" divided>
+          <Icon type="md-power" size="16" />
+          <span style="margin-left: 3px;">退出登录</span>
         </DropdownItem>
       </DropdownMenu>
     </Dropdown>
@@ -35,6 +36,11 @@ export default {
     messageUnreadCount: {
       type: Number,
       default: 0
+    }
+  },
+  data() {
+    return {
+      down: true
     }
   },
   methods: {
@@ -73,8 +79,7 @@ export default {
   .user-avator-dropdown:hover {
     background: #f8f8f9;
   }
-  .logout {
-    margin-top: 5px;
-    border-top: 1px solid #e8eaec;
+  .ivu-dropdown-item {
+    margin: 5px 0 !important;
   }
 </style>
