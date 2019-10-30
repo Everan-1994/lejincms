@@ -1,10 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import routes from './routers'
+import { constantRouterMap as routes } from './base-router'
 import store from '@/store'
 import iView from 'view-design'
-import { setToken, getToken, canTurnTo, setTitle } from '@/libs/util'
+import { getToken, setTitle } from '@/libs/util'
 import config from '@/config'
+
 const { homeName } = config
 
 Vue.use(Router)
@@ -12,21 +13,22 @@ const router = new Router({
   routes,
   mode: 'history'
 })
+
 const LOGIN_PAGE_NAME = 'login'
 
-const turnTo = (to, access, next) => {
-  if (canTurnTo(to.name, access, routes)) next() // 有权限，可访问
-  else next({ replace: true, name: 'error_401' }) // 无权限，重定向到401页面
-}
+const whiteList = [LOGIN_PAGE_NAME] // 免登陆白名单
 
 router.beforeEach((to, from, next) => {
   iView.LoadingBar.start()
   const token = getToken()
   if (!token && to.name !== LOGIN_PAGE_NAME) {
-    // 未登录且要跳转的页面不是登录页
-    next({
-      name: LOGIN_PAGE_NAME // 跳转到登录页
-    })
+    if (whiteList.includes(to.name)) {
+      // 在免登录白名单，直接进入
+      next()
+    } else {
+      // 未登录且要跳转的页面不是登录页
+      next({ name: LOGIN_PAGE_NAME })
+    }
   } else if (!token && to.name === LOGIN_PAGE_NAME) {
     // 未登陆且要跳转的页面是登录页
     next() // 跳转
@@ -36,18 +38,19 @@ router.beforeEach((to, from, next) => {
       name: homeName // 跳转到homeName页
     })
   } else {
-    if (store.state.user.hasGetInfo) {
-      turnTo(to, store.state.user.access, next)
-    } else {
-      store.dispatch('getUserInfo').then(user => {
-        // 拉取用户信息，通过用户权限和跳转的页面的name来判断是否有权限访问;access必须是一个数组，如：['super_admin'] ['super_admin', 'admin']
-        turnTo(to, user.access, next)
-      }).catch(() => {
-        setToken('')
-        next({
-          name: 'login'
+    if (store.getters.addRouters.length === 0) {
+      store.dispatch('GenerateRoutes')
+        .then(() => {
+          // 动态添加可访问路由表
+          router.addRoutes(store.getters.addRouters)
+          // hack方法 确保addRoutes已完成 , set the replace: true so the navigation will not leave a history record
+          next({ ...to, replace: true })
         })
-      })
+        .catch((err) => {
+          console.log('err', err)
+        })
+    } else {
+      next()
     }
   }
 })
