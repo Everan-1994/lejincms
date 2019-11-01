@@ -47,17 +47,26 @@ router.beforeEach((to, from, next) => {
           router.addRoutes(store.getters.addRouters)
           // hack方法 确保addRoutes已完成 , set the replace: true so the navigation will not leave a history record
           next({ ...to, replace: true })
-          // 隐藏加载
-          iView.Spin.hide()
           // 提示欢迎信息
           setTimeout(() => {
             iView.Message.success({
               background: true,
-              content: `${timeFix()}，欢迎回来`
+              content: `${timeFix()}，欢迎回来`,
+              duration: 2
             })
-          }, 1000)
+          }, 1500)
         })
         .catch((err) => {
+          // 隐藏加载
+          iView.Spin.hide()
+          // 弹窗提示
+          iView.Modal.error({
+            title: '温馨提示',
+            content: '后台初始化失败，请重新登录',
+            onOk: () => {
+              next({ name: LOGIN_PAGE_NAME })
+            }
+          });
           console.log('err', err)
         })
     } else {
@@ -67,6 +76,8 @@ router.beforeEach((to, from, next) => {
 })
 
 router.afterEach(to => {
+  // 隐藏加载
+  iView.Spin.hide()
   setTitle(to, router.app)
   iView.LoadingBar.finish()
   window.scrollTo(0, 0)

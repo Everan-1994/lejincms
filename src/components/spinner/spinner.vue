@@ -10,35 +10,35 @@
 </template>
 
 <script>
-  export default {
-    name: 'spinner',
-    data() {
+export default {
+  name: 'spinner',
+  data () {
+    return {
+      show: Boolean,
+      size: String,
+      color: String,
+      shadow: String
+    }
+  },
+  computed: {
+    styles () {
       return {
-        show: Boolean,
-        size: String,
-        color: String,
-        shadow: String
+        width: this.size,
+        height: this.size
       }
     },
-    computed: {
-      styles () {
-        return {
-          width: this.size,
-          height: this.size,
-        }
-      },
-      squareStyles () {
-        return {
-          background: this.color
-        }
-      },
-      shadowStyles () {
-        return {
-          background: this.shadow
-        }
+    squareStyles () {
+      return {
+        background: this.color
+      }
+    },
+    shadowStyles () {
+      return {
+        background: this.shadow
       }
     }
   }
+}
 </script>
 
 <style lang="less" scoped>

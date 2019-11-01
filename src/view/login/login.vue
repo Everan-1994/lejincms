@@ -23,7 +23,7 @@ export default {
   components: {
     LoginForm
   },
-  data() {
+  data () {
     return {
     }
   },
@@ -42,7 +42,7 @@ export default {
           }, 1500)
         })
       })
-    },
+    }
   },
   created () {
 
