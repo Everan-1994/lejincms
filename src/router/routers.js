@@ -32,13 +32,13 @@ const constantRouterComponents = {
   'update-paste': () => import('@/view/update/update-paste.vue')
 }
 
-// 前端未找到页面路由（固定不用改）
+// 前端未找到页面路由（防止第一次没有路由数据跳转到404）
 const notFoundRouter = {
-    path: '*',
-    name: 'error_404',
-    meta: {
-      hideInMenu: true
-    },
+  path: '*',
+  name: 'error_404',
+  meta: {
+    hideInMenu: true
+  }
 }
 
 /**
@@ -72,7 +72,6 @@ export const generator = (routerMap, parent) => {
       name: item.name,
       // 该路由对应页面的 组件
       component: constantRouterComponents[item.component || item.name],
-
       // meta: 页面标题, 菜单图标...
       meta: item.meta
     }

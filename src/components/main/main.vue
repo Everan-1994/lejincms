@@ -26,9 +26,9 @@
             <tags-nav :value="$route" @input="handleClick" :list="tagNavList" @on-close="handleCloseTag"/>
           </div>
           <Content class="content-wrapper" v-if="isRouterAlive">
-            <keep-alive :include="cacheList">
-              <router-view/>
-            </keep-alive>
+              <keep-alive :include="cacheList">
+                <router-view/>
+              </keep-alive>
             <ABackTop :height="100" :bottom="80" :right="50" container=".content-wrapper"></ABackTop>
           </Content>
         </Layout>
@@ -48,7 +48,7 @@
   import ErrorStore from './components/error-store'
   import { mapMutations, mapActions, mapGetters } from 'vuex'
   import { getNewTagList, routeEqual } from '@/libs/util'
-  import {constantRouterMap as routers} from '@/router/base-router'
+  import { constantRouterMap as routers } from '@/router/base-router'
   import minLogo from '@/assets/images/logo-small.png'
   import maxLogo from '@/assets/images/logo.png'
   import './main.less'

@@ -3,12 +3,13 @@ import Router from 'vue-router'
 import { constantRouterMap as routes } from './base-router'
 import store from '@/store'
 import iView from 'view-design'
-import { getToken, setTitle } from '@/libs/util'
+import { getToken, setTitle, timeFix } from '@/libs/util'
 import config from '@/config'
 
 const { homeName } = config
 
 Vue.use(Router)
+
 const router = new Router({
   routes,
   mode: 'history'
@@ -39,12 +40,22 @@ router.beforeEach((to, from, next) => {
     })
   } else {
     if (store.getters.addRouters.length === 0) {
+      iView.Spin.show() // 开启加载
       store.dispatch('GenerateRoutes')
         .then(() => {
           // 动态添加可访问路由表
           router.addRoutes(store.getters.addRouters)
           // hack方法 确保addRoutes已完成 , set the replace: true so the navigation will not leave a history record
           next({ ...to, replace: true })
+          // 隐藏加载
+          iView.Spin.hide()
+          // 提示欢迎信息
+          setTimeout(() => {
+            iView.Message.success({
+              background: true,
+              content: `${timeFix()}，欢迎回来`
+            })
+          }, 1000)
         })
         .catch((err) => {
           console.log('err', err)
