@@ -19,6 +19,8 @@ const importDirective = Vue => {
    * }
    */
   Vue.directive('clipboard', directive.clipboard)
+
+  Vue.directive('action', directive.action)
 }
 
 export default importDirective

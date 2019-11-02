@@ -10,7 +10,10 @@
         <p class="update-table-intro"><Icon style="margin-right: 10px;" :size="10" type="md-heart"/><span class="code-high-line">getArrayFromFile</span>：将Csv文件解析为二维数组</p>
         <p class="update-table-intro"><Icon style="margin-right: 10px;" :size="10" type="md-heart"/><span class="code-high-line">getTableDataFromArray</span>：将二维数组转为表格数据，具体请看文档</p>
         <p>
-          <Button @click="pathTo">Test</Button>
+          <Button v-action:a>a</Button>
+          <Button v-action:b>b</Button>
+          <Button v-action:c>c</Button>
+          <Button v-action:d>d</Button>
         </p>
       </Card>
     </i-col>
