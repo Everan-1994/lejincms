@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import store from '@/store'
 
 /**
  * Action 权限指令
@@ -15,7 +16,7 @@ import Vue from 'vue'
 const action = Vue.directive('action', {
   inserted: function (el, binding, vnode) {
     const actionName = binding.arg
-    if (!['a', 'b', 'c'].includes(actionName)) {
+    if (!store.getters.action.includes(actionName)) {
       el.parentNode && el.parentNode.removeChild(el) || (el.style.display = 'none')
     }
   }

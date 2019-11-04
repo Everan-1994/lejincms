@@ -48,9 +48,9 @@ const notFoundRouter = {
 export const generatorDynamicRouter = () => {
   return new Promise((resolve, reject) => {
     getMenu().then(res => {
-      const routers = generator(res.data)
+      const routers = generator(res.data.menu)
       routers.push(notFoundRouter)
-      resolve(routers)
+      resolve(res.data)
     }).catch(err => {
       reject(err)
     })

@@ -39,7 +39,8 @@ router.beforeEach((to, from, next) => {
       name: homeName // 跳转到homeName页
     })
   } else {
-    if (store.getters.addRouters.length === 0) {
+    // 菜单或权限为空则重新登录
+    if (store.getters.addRouters.length === 0 /* || store.getters.action.length === 0 */) {
       iView.Spin.show() // 开启加载
       store.dispatch('GenerateRoutes')
         .then(() => {
