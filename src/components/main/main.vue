@@ -13,7 +13,7 @@
     <Layout>
       <Header class="header-con">
         <header-bar :collapsed="collapsed" @on-coll-change="handleCollapsedChange" @refres-content="refreshPage">
-          <user :message-unread-count="unreadCount" :user-avator="userAvator"/>
+          <user :message-unread-count="unreadCount" :user-name="userName" :user-avatar="userAvatar"/>
           <!-- <un-read-msg :count="3"/>-->
           <!-- <language v-if="$config.useI18n" @on-lang-change="setLocal" style="margin-right: 10px;" :lang="local"/>-->
           <!-- <error-store v-if="$config.plugin['error-store'] && $config.plugin['error-store'].showInHeader" :has-read="hasReadErrorPage" :count="errorCount"></error-store>-->
@@ -52,6 +52,7 @@ import { constantRouterMap as routers } from '@/router/base-router'
 import minLogo from '@/assets/images/logo-small.png'
 import maxLogo from '@/assets/images/logo.png'
 import './main.less'
+import { getValue } from '@/libs/util'
 
 export default {
   name: 'Main',
@@ -85,12 +86,14 @@ export default {
     tagRouter () {
       return this.$store.state.app.tagRouter
     },
-    userAvator () {
-      return this.$store.state.user.avatorImgPath
+    userName () {
+      return this.$store.state.user.userName || getValue('username')
+    },
+    userAvatar () {
+      return this.$store.state.user.avatarImgPath || getValue('avatar')
     },
     cacheList () {
-      const list = ['ParentView', ...this.tagNavList.length ? this.tagNavList.filter(item => !(item.meta && item.meta.notCache)).map(item => item.name) : []]
-      return list
+      return ['ParentView', ...this.tagNavList.length ? this.tagNavList.filter(item => !(item.meta && item.meta.notCache)).map(item => item.name) : []]
     },
     menuList () {
       return this.$store.getters.menuList

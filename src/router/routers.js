@@ -23,13 +23,15 @@ import { getMenu } from '@/api/menu'
 // 前端路由表
 const constantRouterComponents = {
   Main: Main,
-  parentView: parentView,
-
-  'error_404': () => import('@/view/error-page/404.vue'),
+  'error_404': () => import('@/view/error-page/404'),
 
   // 需要动态引入的页面组件
-  'update-table': () => import('@/view/update/update-table.vue'),
-  'update-paste': () => import('@/view/update/update-paste.vue')
+  'AdminUser': () => import('@/view/lejin-setting/admin-user'), // 管理员
+  'Role': () => import('@/view/lejin-setting/role'), // 角色
+  'Permission': () => import('@/view/lejin-setting/permission'), // 权限
+  'Menus': () => import('@/view/lejin-setting/menus'), // 栏目
+
+
 }
 
 // 前端未找到页面路由（防止第一次没有路由数据跳转到404）
@@ -48,9 +50,10 @@ const notFoundRouter = {
 export const generatorDynamicRouter = () => {
   return new Promise((resolve, reject) => {
     getMenu().then(res => {
-      const routers = generator(res.data.menu)
+      const data = res.data.data
+      const routers = generator(data.menu)
       routers.push(notFoundRouter)
-      resolve(res.data)
+      resolve({menu: routers, action: data.action})
     }).catch(err => {
       reject(err)
     })
@@ -67,9 +70,11 @@ export const generatorDynamicRouter = () => {
 export const generator = (routerMap, parent) => {
   return routerMap.map(item => {
     const currentRouter = {
-      path: item.path,
+      path: `/${item.path}`,
       // 路由名称，建议唯一
       name: item.name,
+      // 菜单图标
+      icon: item.meta.icon,
       // 该路由对应页面的 组件
       component: constantRouterComponents[item.component || item.name],
       // meta: 页面标题, 菜单图标...

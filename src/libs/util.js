@@ -4,20 +4,16 @@ import config from '@/config'
 import { forEach, hasOneOf, objEqual } from '@/libs/tools'
 const { title, cookieExpires, useI18n } = config
 
-export const TOKEN_KEY = 'token'
-
-export const setToken = (token) => {
-  Cookies.set(TOKEN_KEY, token, { expires: cookieExpires || 1 })
+export const setValue = (key, value) => {
+  Cookies.set(key, value, { expires: cookieExpires || 1 })
 }
 
-export const getToken = () => {
-  const token = Cookies.get(TOKEN_KEY)
-  if (token) return token
-  else return false
+export const getValue = (key) => {
+  return Cookies.get(key)
 }
 
-export const delToken = () => {
-  Cookies.remove(TOKEN_KEY)
+export const delValue = (key) => {
+  Cookies.remove(key)
 }
 
 export const hasChild = (item) => {

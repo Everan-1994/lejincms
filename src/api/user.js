@@ -12,10 +12,10 @@ export const login = ({ userName, password }) => {
   })
 }
 
-export const logout = (token) => {
+export const logout = () => {
   return axios.request({
     url: 'logout',
-    method: 'post'
+    method: 'delete'
   })
 }
 

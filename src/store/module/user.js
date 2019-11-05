@@ -8,13 +8,13 @@ import {
   restoreTrash,
   getUnreadCount
 } from '@/api/user'
-import { setToken, getToken, delToken } from '@/libs/util'
+import { setValue, getValue, delValue } from '@/libs/util'
 
 export default {
   state: {
-    userName: '',
-    avatarImgPath: '',
-    token: getToken(),
+    userName: getValue('username'),
+    avatarImgPath: getValue('avatar'),
+    token: getValue('token'),
     hasGetInfo: false,
     unreadCount: 0,
     messageUnreadList: [],
@@ -25,13 +25,15 @@ export default {
   mutations: {
     setAvatar (state, avatarPath) {
       state.avatarImgPath = avatarPath
+      setValue('avatar', avatarPath)
     },
     setUserName (state, name) {
       state.userName = name
+      setValue('username', name)
     },
     setToken (state, token) {
       state.token = token
-      setToken(token)
+      setValue('token', token)
     },
     setMessageCount (state, count) {
       state.unreadCount = count
@@ -69,13 +71,13 @@ export default {
           userName,
           password
         }).then(res => {
-          const data = res.data
-          if (data.code === 10000) {
-            commit('setToken', `${data.meta.token_type} ${data.meta.access_token}`)
-            commit('setAvatar', data.info.avatar)
-            commit('setUserName', data.info.name)
+          const resp = res.data
+          if (resp.code === 10000) {
+            commit('setToken', `${resp.data.meta.token_type} ${resp.data.meta.access_token}`)
+            commit('setAvatar', resp.data.info.avatar)
+            commit('setUserName', resp.data.info.name)
           }
-          resolve(res)
+          resolve(resp)
         }).catch(err => {
           reject(err)
         })
@@ -85,12 +87,18 @@ export default {
     handleLogOut ({ commit }) {
       return new Promise((resolve, reject) => {
         logout().then(res => {
-          delToken()
+          delValue('token')
+          delValue('username')
+          delValue('avatar')
+          commit('setToken', '')
           commit('setAvatar', '')
           commit('setUserName', '')
           resolve(res)
         }).catch(err => {
-          delToken()
+          delValue('token')
+          delValue('username')
+          delValue('avatar')
+          commit('setToken', '')
           commit('setAvatar', '')
           commit('setUserName', '')
           reject(err)

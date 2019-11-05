@@ -1,7 +1,7 @@
 import axios from 'axios'
 import store from '@/store'
-import { getToken, setToken } from './util'
-// import { Spin } from 'iview'
+import { getValue, setValue } from './util'
+import iView from 'view-design'
 const addErrorLog = errorInfo => {
   const { statusText, status, request: { responseURL } } = errorInfo
   let info = {
@@ -37,7 +37,7 @@ class HttpRequest {
     // 请求拦截
     instance.interceptors.request.use(config => {
       // 头部携带 token
-      let token = getToken()
+      let token = getValue('token')
       if (token) {
         config.headers['Authorization'] = token
       }
@@ -52,11 +52,12 @@ class HttpRequest {
     })
     // 响应拦截
     instance.interceptors.response.use(res => {
-      // 判断一下响应中是否有 token，如果有就直接使用此 token 替换掉本地的 token。你可以根据你的业务需求自己编写更新 token 的逻辑
+      this.checkRespCode(res.data)
+      // 判断响应中是否有 token，如果有就直接使用此 token 替换掉本地的 token。你可以根据你的业务需求自己编写更新 token 的逻辑
       let token = res.headers.authorization
       if (token) {
         // 如果 header 中存在 token，那么就替换本地的 token
-        setToken(token)
+        setValue('token', token)
       }
       this.destroy(url)
       const { data, status } = res
@@ -72,7 +73,8 @@ class HttpRequest {
           request: { responseURL: config.url }
         }
       }
-      addErrorLog(errorInfo)
+      // addErrorLog(errorInfo) 本地错误记录
+      this.checkRespCode(error.data)
       return Promise.reject(error)
     })
   }
@@ -81,6 +83,26 @@ class HttpRequest {
     options = Object.assign(this.getInsideConfig(), options)
     this.interceptors(instance, options.url)
     return instance(options)
+  }
+  checkRespCode (resp) {
+    if (typeof resp === 'Object') {
+      switch (resp.code) {
+        case 10005:
+          iView.Modal.error({
+            title: '系统提示',
+            content: '<p>登录信息已过期，请重新登录</p>',
+            onOk: () => {
+              iView.Modal.remove();
+              iView.router.push({
+                name: 'login'
+              })
+            }
+          });
+          return;
+        default:
+          break;
+      }
+    }
   }
 }
 export default HttpRequest

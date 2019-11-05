@@ -3,7 +3,7 @@ import Router from 'vue-router'
 import { constantRouterMap as routes } from './base-router'
 import store from '@/store'
 import iView from 'view-design'
-import { getToken, setTitle, timeFix } from '@/libs/util'
+import { getValue, setTitle, timeFix } from '@/libs/util'
 import config from '@/config'
 
 const { homeName } = config
@@ -21,7 +21,7 @@ const whiteList = [LOGIN_PAGE_NAME] // 免登陆白名单
 
 router.beforeEach((to, from, next) => {
   iView.LoadingBar.start()
-  const token = getToken()
+  const token = getValue('token')
   if (!token && to.name !== LOGIN_PAGE_NAME) {
     if (whiteList.includes(to.name)) {
       // 在免登录白名单，直接进入
@@ -62,7 +62,7 @@ router.beforeEach((to, from, next) => {
           iView.Spin.hide()
           // 弹窗提示
           iView.Modal.error({
-            title: '温馨提示',
+            title: '系统提示',
             content: '后台初始化失败，请重新登录',
             onOk: () => {
               next({ name: LOGIN_PAGE_NAME })

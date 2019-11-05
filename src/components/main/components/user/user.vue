@@ -1,8 +1,8 @@
 <template>
   <div class="user-avator-dropdown">
     <Dropdown @on-click="handleClick"  @on-visible-change="down = !down">
-      <Avatar :src="userAvator"/>
-      乐进科技
+      <Avatar :src="userAvatar"/>
+      {{ userName }}
       <Icon type="md-arrow-dropdown" v-if="down"/>
       <Icon type="md-arrow-dropup" v-else/>
       <DropdownMenu slot="list">
@@ -29,7 +29,11 @@ import { mapActions } from 'vuex'
 export default {
   name: 'User',
   props: {
-    userAvator: {
+    userName: {
+      type: String,
+      default: ''
+    },
+    userAvatar: {
       type: String,
       default: ''
     },
@@ -48,11 +52,19 @@ export default {
       'handleLogOut'
     ]),
     logout () {
-      this.handleLogOut().then(() => {
-        this.$router.push({
-          name: 'login'
-        })
-      })
+        this.$Modal.confirm({
+            title: '系统提示',
+            content: '<p>确定要退出吗？</p>',
+            loading: true,
+            onOk: () => {
+                this.handleLogOut().then(res => {
+                    this.$Modal.remove();
+                    this.$router.push({
+                        name: 'login'
+                    })
+                })
+            }
+        });
     },
     message () {
       this.$router.push({

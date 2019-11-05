@@ -47,7 +47,7 @@
                         // 登录失败
                         setTimeout(() => {
                             this.loading = false
-                            this.$Message.error(res.data.message || '系统错误')
+                            this.$Message.error(res.message || '系统错误')
                         }, 1000)
                     }
                 }).catch(err => {
