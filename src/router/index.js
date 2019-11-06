@@ -50,9 +50,9 @@ router.beforeEach((to, from, next) => {
           next({ ...to, replace: true })
           // 提示欢迎信息
           setTimeout(() => {
-            iView.Message.success({
-              background: true,
-              content: `${timeFix()}，欢迎回来`,
+            iView.Notice.success({
+              title: '系统提示',
+              desc: `${timeFix()}，欢迎回来`,
               duration: 2
             })
           }, 1500)
@@ -77,9 +77,8 @@ router.beforeEach((to, from, next) => {
 })
 
 router.afterEach(to => {
-  // 隐藏加载
-  iView.Spin.hide()
   setTitle(to, router.app)
+  iView.Spin.hide() // 隐藏加载
   iView.LoadingBar.finish()
   window.scrollTo(0, 0)
 })
