@@ -33,22 +33,28 @@
       v-model="show"
       :title="modal_title"
       :mask-closable="false"
-      :closable="false"
-      ok-text="提交"
-      :loading="sub_load"
-      :on-ok="submitFrom"
     >
-      <p>Content of dialog</p>
-      <p>Content of dialog</p>
-      <p>Content of dialog</p>
+      <Form ref="permissionFrom" :model="fromData" :rules="ruleValidate" :label-width="100" @submit.native.prevent>
+        <FormItem label="权限名称" prop="name">
+          <Input v-model="fromData.name" placeholder="请输入权限名称" style="width: 95%;"></Input>
+        </FormItem>
+        <FormItem label="授予角色">
+          <Select v-model="fromData.role" multiple placeholder="授予角色 可多选" style="width: 95%;">
+            <Option v-for="item in roles" :value="item.name" :key="item.id">{{ item.name }}</Option>
+          </Select>
+        </FormItem>
+      </Form>
+      <div slot="footer">
+        <Button type="primary" :loading="sub_load" @click="submitFrom">提交</Button>
+      </div>
     </Modal>
   </div>
 </template>
 
 <script>
     import LeJinTable from '@/components/lejin-table'
-    import {getPermission} from '@/api/permission'
-    import { getRole, getRoleByPermission } from '@/api/role'
+    import {getPermission, addPermission, editPermission} from '@/api/permission'
+    import {getRole} from '@/api/role'
 
     export default {
         name: "permission",
@@ -88,7 +94,8 @@
                                 h('Button', {
                                     props: {
                                         type: 'primary',
-                                        size: 'small'
+                                        size: 'small',
+                                        icon: 'ios-create-outline'
                                     },
                                     style: {
                                         marginRight: '5px',
@@ -103,20 +110,26 @@
                         }
                     }
                 ],
+                ruleValidate: {
+                    name: [
+                        {required: true, message: '权限名称不能为空', trigger: 'blur'}
+                    ],
+                },
                 data: [],
                 loading: false,
                 showPage: false,
                 pageSize: 1000,
-                name: '',
                 selectArr: [], // 选择的数据 id 集合
                 fromData: {
-                    id: 0,
                     name: '', // 权限名称
-                    role: '' // 角色名称
+                    role: [] // 选中的角色
                 },
                 modal_title: '添加权限',
+                add_or_edit: true, // 新增或编辑
                 show: false, // modal
-                sub_load: false // 提交状态
+                sub_load: false, // 提交状态
+                name: '', // 权限名称
+                roles: [], // 角色集合
             }
         },
         created() {
@@ -125,38 +138,74 @@
         },
         methods: {
             tableDataInit() {
+                this.loading = true
                 getPermission({name: this.name})
                     .then((resp) => {
-                        // console.log('resp', resp)
+                        this.data = resp.data.data
+                        this.loading = false
                     })
                     .catch((err) => {
-                        // console.log('err', err)
+                        this.loading = false
+                        console.log('err', err)
                     })
             },
-            roleDataInit () {
-
-            },
-            roleData(permission) {
-
+            roleDataInit() {
+                getRole('')
+                    .then((resp) => {
+                        this.roles = resp.data.data
+                    })
+                    .catch((err) => {
+                        console.log('role_err', err)
+                    })
             },
             permissionModal(bool, row) {
                 this.show = true
+                this.add_or_edit = true
                 if (bool) {
                     this.modal_title = '编辑权限'
-                    this.roleData(row.name)
-                } else {
-                    this.roleData()
+                    this.add_or_edit = false
+                    this.fromData = {
+                        id: row.id,
+                        name: row.name,
+                        role: row.roles,
+                        old_role: row.roles
+                    }
                 }
             },
-            submitFrom () {
-
+            submitFrom() {
+                this.$refs.permissionFrom.validate((valid) => {
+                    if (valid) {
+                        this.sub_load = true
+                        if (this.add_or_edit) {
+                            addPermission(this.fromData)
+                                .then((resp) => {
+                                    this.$Message.success('添加成功');
+                                    this.sub_load = this.show = false
+                                    setTimeout(this.tableDataInit(), 1000) // 更新列表
+                                })
+                                .catch((err) => {
+                                    this.sub_load = false
+                                })
+                        } else {
+                            editPermission(this.fromData)
+                                .then((resp) => {
+                                    this.$Message.success('更新成功');
+                                    this.sub_load = this.show = false
+                                    setTimeout(this.tableDataInit(), 1000) // 更新列表
+                                })
+                                .catch((err) => {
+                                    this.sub_load = false
+                                })
+                        }
+                    }
+                })
             },
             query() {
                 this.tableDataInit()
             },
             resetQuery() {
                 this.name = ''
-                this.loading = false
+                this.tableDataInit()
             },
             selectChange(arr) {
                 this.selectArr = arr
@@ -164,6 +213,12 @@
             deleteSome() {
                 const ids = {}
                 ids.ids = this.selectArr
+            }
+        },
+        watch: {
+            show() {
+                if (!this.show)
+                    this.$refs.permissionFrom.resetFields()
             }
         }
     }

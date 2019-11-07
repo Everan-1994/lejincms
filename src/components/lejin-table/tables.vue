@@ -5,7 +5,7 @@
       <Row class="marginTop">
         <Col span="6">
           <div style="padding-bottom: 1px; overflow: hidden;">
-            <Button type="error" @click="deleteData" >删除</Button>
+            <Button type="error" @click="deleteData" icon="md-trash">删除</Button>
           </div>
         </Col>
         <Col span="18" v-show="showPage">

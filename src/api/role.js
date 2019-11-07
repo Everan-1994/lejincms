@@ -7,11 +7,3 @@ export const getRole = ({name}) => {
     params: name
   })
 }
-
-export const getRoleByPermission = ({name}) => {
-  return axios.request({
-    url: '/role_name',
-    method: 'get',
-    params: name
-  })
-}
