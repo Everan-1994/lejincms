@@ -12,9 +12,6 @@ import { setValue, getValue, delValue } from '@/libs/util'
 
 export default {
   state: {
-    userName: getValue('username'),
-    avatarImgPath: getValue('avatar'),
-    token: getValue('token'),
     hasGetInfo: false,
     unreadCount: 0,
     messageUnreadList: [],
@@ -23,18 +20,6 @@ export default {
     messageContentStore: {}
   },
   mutations: {
-    setAvatar (state, avatarPath) {
-      state.avatarImgPath = avatarPath
-      setValue('avatar', avatarPath)
-    },
-    setUserName (state, name) {
-      state.userName = name
-      setValue('username', name)
-    },
-    setToken (state, token) {
-      state.token = token
-      setValue('token', token)
-    },
     setMessageCount (state, count) {
       state.unreadCount = count
     },
@@ -73,9 +58,9 @@ export default {
         }).then(res => {
           const resp = res.data
           if (resp.code === 10000) {
-            commit('setToken', `${resp.data.meta.token_type} ${resp.data.meta.access_token}`)
-            commit('setAvatar', resp.data.info.avatar)
-            commit('setUserName', resp.data.info.name)
+            setValue('token', `${resp.data.meta.token_type} ${resp.data.meta.access_token}`)
+            setValue('avatar', resp.data.info.avatar)
+            setValue('username', resp.data.info.name)
           }
           resolve(resp)
         }).catch(err => {
@@ -90,17 +75,11 @@ export default {
           delValue('token')
           delValue('username')
           delValue('avatar')
-          commit('setToken', '')
-          commit('setAvatar', '')
-          commit('setUserName', '')
           resolve(res)
         }).catch(err => {
           delValue('token')
           delValue('username')
           delValue('avatar')
-          commit('setToken', '')
-          commit('setAvatar', '')
-          commit('setUserName', '')
           reject(err)
         })
       })

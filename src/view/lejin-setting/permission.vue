@@ -24,7 +24,6 @@
           :data="data"
           :loading="loading"
           :showPage="showPage"
-          :select="selectChange"
         >
         </le-jin-table>
       </div>
@@ -53,7 +52,7 @@
 
 <script>
     import LeJinTable from '@/components/lejin-table'
-    import {getPermission, addPermission, editPermission} from '@/api/permission'
+    import {getPermission, addPermission, editPermission, delPermission} from '@/api/permission'
     import {getRole} from '@/api/role'
 
     export default {
@@ -210,9 +209,26 @@
             selectChange(arr) {
                 this.selectArr = arr
             },
-            deleteSome() {
-                const ids = {}
-                ids.ids = this.selectArr
+            deleteData() {
+                const _this = this
+                this.$Modal.confirm({
+                    title: '温馨提示',
+                    content: '确定要执行删除动作吗？',
+                    loading: true,
+                    onOk: () => {
+                        const ids = {}
+                        ids.ids = _this.selectArr
+                        delPermission(ids).then(function (res) {
+                            _this.data = _this.data.filter(item => !_this.selectArr.some(ele => ele === item.id))
+                            setTimeout(() => {
+                                _this.$Modal.remove();
+                                _this.$Message.success('删除成功')
+                            }, 1000)
+                        }).catch(function (err) {
+                            console.log(err)
+                        })
+                    }
+                })
             }
         },
         watch: {

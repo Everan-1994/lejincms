@@ -38,3 +38,16 @@ export const editPermission = (data) => {
     data
   })
 }
+
+/**
+ * 删除权限
+ * @param ids
+ * @returns {ClientHttp2Stream | * | void | http.ClientRequest | AxiosPromise<any>}
+ */
+export const delPermission = (ids) => {
+  return axios.request({
+    url: '/permission',
+    method: 'delete',
+    data: ids
+  })
+}

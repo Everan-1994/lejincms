@@ -72,7 +72,7 @@
                 for (let i = 0; i < selection.length; i++) {
                     arr.push(selection[i].id)
                 }
-                this.$emit('select-change', arr)
+                this.$parent.$parent.selectChange(arr)
             },
             deleteData () {
                 const list = this.$refs.tables.getSelection()
@@ -80,7 +80,7 @@
                     this.$Message.error('请勾选要删除的数据')
                     return false
                 }
-                this.$emit('delete-some')
+                this.$parent.$parent.deleteData()
             },
             changePage () {
 

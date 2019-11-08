@@ -87,10 +87,10 @@ export default {
       return this.$store.state.app.tagRouter
     },
     userName () {
-      return this.$store.state.user.userName || getValue('username')
+      return getValue('username')
     },
     userAvatar () {
-      return this.$store.state.user.avatarImgPath || getValue('avatar')
+      return getValue('avatar')
     },
     cacheList () {
       return ['ParentView', ...this.tagNavList.length ? this.tagNavList.filter(item => !(item.meta && item.meta.notCache)).map(item => item.name) : []]
