@@ -1,6 +1,6 @@
 <template>
     <div>
-      <Table ref="tables" :columns="columns" :data="data" :loading="loading"
+      <Table ref="tables" :columns="columns" :data="data" :loading="loading" :no-data-text="loading ? '数据加载中...' : '暂无数据'"
              @on-selection-change="selectChange"></Table>
       <Row class="marginTop">
         <Col span="6">
@@ -82,11 +82,11 @@
                 }
                 this.$parent.$parent.deleteData()
             },
-            changePage () {
-
+            changePage (value) {
+                this.$parent.$parent.changePage(value)
             },
-            changePageSize () {
-
+            changePageSize (value) {
+                this.$parent.$parent.changePageSize(value)
             }
         }
     }
