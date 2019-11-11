@@ -2,8 +2,8 @@
   <div>
     <Card>
       <p slot="title">
-        <Icon type="md-contacts" />
-        角色管理
+        <Icon type="ios-medal-outline" />
+        {{ currentComponet === 'List' ? '角色列表' : '角色管理' }}
       </p>
       <component @onEdit="handleEdit" @onGoBack="handleGoBack" :record="record" :is="currentComponet"></component>
     </Card>

@@ -33,18 +33,18 @@
       :title="modal_title"
       :mask-closable="false"
     >
-      <Form ref="permissionFrom" :model="fromData" :rules="ruleValidate" :label-width="100" @submit.native.prevent>
+      <Form ref="permissionFrom" :model="formData" :rules="ruleValidate" :label-width="100" @submit.native.prevent>
         <FormItem label="权限名称" prop="name">
-          <Input v-model="fromData.name" placeholder="请输入权限名称" style="width: 95%;"></Input>
+          <Input v-model="formData.name" placeholder="请输入权限名称" style="width: 95%;"></Input>
         </FormItem>
         <FormItem label="授予角色">
-          <Select v-model="fromData.role" multiple placeholder="授予角色 可多选" style="width: 95%;">
+          <Select v-model="formData.role" multiple placeholder="授予角色 可多选" style="width: 95%;">
             <Option v-for="item in roles" :value="item.name" :key="item.id">{{ item.name }}</Option>
           </Select>
         </FormItem>
       </Form>
       <div slot="footer">
-        <Button type="primary" :loading="sub_load" @click="submitFrom">提交</Button>
+        <Button type="primary" :loading="sub_load" @click="submitForm">提交</Button>
       </div>
     </Modal>
   </div>
@@ -119,7 +119,7 @@
                 showPage: false,
                 pageSize: 1000,
                 selectArr: [], // 选择的数据 id 集合
-                fromData: {
+                formData: {
                     name: '', // 权限名称
                     role: [] // 选中的角色
                 },
@@ -163,7 +163,7 @@
                 if (bool) {
                     this.modal_title = '编辑权限'
                     this.add_or_edit = false
-                    this.fromData = {
+                    this.formData = {
                         id: row.id,
                         name: row.name,
                         role: row.roles,
@@ -171,12 +171,12 @@
                     }
                 }
             },
-            submitFrom() {
+            submitForm() {
                 this.$refs.permissionFrom.validate((valid) => {
                     if (valid) {
                         this.sub_load = true
                         if (this.add_or_edit) {
-                            addPermission(this.fromData)
+                            addPermission(this.formData)
                                 .then((resp) => {
                                     this.$Message.success('添加成功');
                                     this.sub_load = this.show = false
@@ -186,7 +186,7 @@
                                     this.sub_load = false
                                 })
                         } else {
-                            editPermission(this.fromData)
+                            editPermission(this.formData)
                                 .then((resp) => {
                                     this.$Message.success('更新成功');
                                     this.sub_load = this.show = false

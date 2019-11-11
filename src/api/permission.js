@@ -1,10 +1,6 @@
 import axios from '@/libs/api.request'
 
-/**
- * 权限列表
- * @param name
- * @returns {ClientHttp2Stream | * | void | http.ClientRequest | AxiosPromise<any>}
- */
+// 权限列表
 export const getPermission = (name) => {
   return axios.request({
     url: '/permission',
@@ -13,11 +9,7 @@ export const getPermission = (name) => {
   })
 }
 
-/**
- * 添加权限
- * @param data
- * @returns {ClientHttp2Stream | * | void | http.ClientRequest | AxiosPromise<any>}
- */
+// 添加权限
 export const addPermission = (data) => {
   return axios.request({
     url: '/permission',
@@ -26,11 +18,7 @@ export const addPermission = (data) => {
   })
 }
 
-/**
- * 更新权限
- * @param data
- * @returns {ClientHttp2Stream | * | void | http.ClientRequest | AxiosPromise<any>}
- */
+// 更新权限
 export const editPermission = (data) => {
   return axios.request({
     url: '/permission',
@@ -39,11 +27,7 @@ export const editPermission = (data) => {
   })
 }
 
-/**
- * 删除权限
- * @param ids
- * @returns {ClientHttp2Stream | * | void | http.ClientRequest | AxiosPromise<any>}
- */
+// 删除权限
 export const delPermission = (ids) => {
   return axios.request({
     url: '/permission',

@@ -1,10 +1,6 @@
 import axios from '@/libs/api.request'
 
-/**
- * 角色列表
- * @param name
- * @returns {ClientHttp2Stream | * | void | http.ClientRequest | AxiosPromise<any>}
- */
+// 角色列表
 export const getRole = ({name}) => {
   return axios.request({
     url: '/role',
@@ -13,11 +9,7 @@ export const getRole = ({name}) => {
   })
 }
 
-/**
- * 添加角色
- * @param data
- * @returns {ClientHttp2Stream | * | void | http.ClientRequest | AxiosPromise<any>}
- */
+// 添加角色
 export const addRole = (data) => {
   return axios.request({
     url: '/role',
@@ -26,11 +18,7 @@ export const addRole = (data) => {
   })
 }
 
-/**
- * 更新角色
- * @param data
- * @returns {ClientHttp2Stream | * | void | http.ClientRequest | AxiosPromise<any>}
- */
+// 更新角色
 export const editRole = (data) => {
   return axios.request({
     url: '/role',
@@ -39,11 +27,7 @@ export const editRole = (data) => {
   })
 }
 
-/**
- * 删除角色
- * @param ids
- * @returns {ClientHttp2Stream | * | void | http.ClientRequest | AxiosPromise<any>}
- */
+// 删除角色
 export const delRole = (ids) => {
   return axios.request({
     url: '/role',

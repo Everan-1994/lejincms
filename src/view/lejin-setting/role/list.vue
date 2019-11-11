@@ -20,6 +20,16 @@
       :showPage="showPage"
     >
     </le-jin-table>
+    <Modal v-model="showModal" :mask-closable="false" :closable="false">
+      <Divider orientation="left">{{ permission_info.name }}</Divider>
+      <Tag type="border"
+           :color="color[Math.floor((Math.random()*color.length))]"
+           v-for="p in permission_info.permission"
+           :key="p.id">{{ p.name }}</Tag>
+      <div slot="footer">
+        <Button type="error" size="small" @click="closeModal">关闭</Button>
+      </div>
+    </Modal>
   </div>
 </template>
 
@@ -64,12 +74,25 @@
                             return h('div', [
                                 h('Button', {
                                     props: {
-                                        type: 'primary',
+                                        type: 'success',
                                         size: 'small',
-                                        icon: 'ios-create-outline'
+                                        icon: 'md-finger-print'
                                     },
                                     style: {
                                         marginRight: '5px',
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.showModal = true
+                                            this.showAllPermission(params.row)
+                                        }
+                                    }
+                                }, '权限'),
+                                h('Button', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small',
+                                        icon: 'ios-create-outline'
                                     },
                                     on: {
                                         click: () => {
@@ -89,6 +112,15 @@
                 data: [],
                 loading: false,
                 showPage: false,
+                showModal: false,
+                permission_info: {
+                    role: '',
+                    permission: []
+                },
+                color: [
+                    'default', 'primary', 'success', 'warning', 'error', 'blue', 'green', 'red', 'yellow',
+                    'magenta', 'volcano', 'orange', 'gold', 'lime', 'cyan', 'geekblue', 'purple'
+                ],
                 total: 0,
                 page: 1,
                 pageSize: 10,
@@ -149,6 +181,19 @@
                         })
                     }
                 })
+            },
+            showAllPermission(row) {
+                this.permission_info = {
+                    name: row.name,
+                    permission: row.permissions
+                }
+            },
+            closeModal() {
+                this.showModal = false
+                this.permission_info = {
+                    name: '',
+                    permission: []
+                }
             },
             changePage(value) {
                 this.loading = true
