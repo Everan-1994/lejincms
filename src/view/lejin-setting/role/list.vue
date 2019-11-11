@@ -25,7 +25,10 @@
       <Tag type="border"
            :color="color[Math.floor((Math.random()*color.length))]"
            v-for="p in permission_info.permission"
-           :key="p.id">{{ p.name }}</Tag>
+           :key="p.id"
+      >
+        {{ p.name }}
+      </Tag>
       <div slot="footer">
         <Button type="error" size="small" @click="closeModal">关闭</Button>
       </div>
