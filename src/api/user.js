@@ -1,5 +1,6 @@
 import axios from '@/libs/api.request'
 
+// 登录
 export const login = ({ userName, password }) => {
   const data = {
     username: userName,
@@ -11,11 +12,43 @@ export const login = ({ userName, password }) => {
     method: 'post'
   })
 }
-
+// 登出
 export const logout = () => {
   return axios.request({
     url: 'logout',
     method: 'delete'
+  })
+}
+// 管理员列表
+export const getAdminUser = (data) => {
+  return axios.request({
+    url: '/admin_user',
+    method: 'get',
+    params: data
+  })
+}
+// 新增管理员
+export const addAdminUser = (data) => {
+  return axios.request({
+    url: '/admin_user',
+    method: 'post',
+    data
+  })
+}
+// 编辑管理员
+export const editAdminUser = (data) => {
+  return axios.request({
+    url: '/admin_user',
+    method: 'put',
+    data
+  })
+}
+// 删除管理员
+export const delAdminUser = (data) => {
+  return axios.request({
+    url: '/admin_user',
+    method: 'delete',
+    data
   })
 }
 

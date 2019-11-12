@@ -27,9 +27,6 @@
                 record: 'add'
             }
         },
-        created () {
-
-        },
         methods: {
             handleEdit (record) {
                 this.record = record

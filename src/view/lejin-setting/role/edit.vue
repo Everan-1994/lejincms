@@ -85,7 +85,7 @@
                     })
             },
             handleGoBack() {
-                this.$parent.$parent.handleGoBack()
+                this.$emit('onGoBack')
             },
             handleChange(newTargetKeys) {
                 this.formData.permissions = newTargetKeys;

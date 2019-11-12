@@ -18,17 +18,24 @@
       :data="data"
       :loading="loading"
       :showPage="showPage"
+      @select-change="selectChange"
+      @delete-data="deleteData"
+      @change-page="changePage"
+      @change-page-size="changePageSize"
     >
     </le-jin-table>
     <Modal v-model="showModal" :mask-closable="false" :closable="false">
       <Divider orientation="left">{{ permission_info.name }}</Divider>
-      <Tag type="border"
-           :color="color[Math.floor((Math.random()*color.length))]"
-           v-for="p in permission_info.permission"
-           :key="p.id"
-      >
-        {{ p.name }}
-      </Tag>
+      <div v-if="permission_info.permission.length > 0">
+        <Tag type="border"
+             :color="color[Math.floor((Math.random()*color.length))]"
+             v-for="p in permission_info.permission"
+             :key="p.id"
+        >
+          {{ p.name}}
+        </Tag>
+      </div>
+      <div v-else style="text-align: center;"><Tag type="dot" color="warning">暂无权限</Tag></div>
       <div slot="footer">
         <Button type="error" size="small" @click="closeModal">关闭</Button>
       </div>
@@ -99,7 +106,7 @@
                                     },
                                     on: {
                                         click: () => {
-                                            this.$parent.$parent.handleEdit(params.row)
+                                            this.$emit('onEdit', params.row)
                                         }
                                     }
                                 }, '编辑'),
@@ -137,7 +144,7 @@
         },
         methods: {
             handleEdit(record) {
-                this.$parent.$parent.handleEdit(record)
+                this.$emit('onEdit', record)
             },
             tableDataInit() {
                 this.loading = true

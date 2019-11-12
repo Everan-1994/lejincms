@@ -6,7 +6,7 @@ import iView from 'view-design'
 import { getValue, setTitle, timeFix } from '@/libs/util'
 import config from '@/config'
 
-const { homeName } = config
+const { baseUrl } = config
 
 Vue.use(Router)
 

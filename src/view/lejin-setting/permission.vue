@@ -24,6 +24,8 @@
           :data="data"
           :loading="loading"
           :showPage="showPage"
+          @select-change="selectChange"
+          @delete-data="deleteData"
         >
         </le-jin-table>
       </div>
@@ -33,7 +35,7 @@
       :title="modal_title"
       :mask-closable="false"
     >
-      <Form ref="permissionFrom" :model="formData" :rules="ruleValidate" :label-width="100" @submit.native.prevent>
+      <Form ref="permissionForm" :model="formData" :rules="ruleValidate" :label-width="100" @submit.native.prevent>
         <FormItem label="权限名称" prop="name">
           <Input v-model="formData.name" placeholder="请输入权限名称" style="width: 95%;"></Input>
         </FormItem>
@@ -163,16 +165,22 @@
                 if (bool) {
                     this.modal_title = '编辑权限'
                     this.add_or_edit = false
+
+                    const roles = []
+                    row.roles.forEach((item) => {
+                        roles.push(item.name)
+                    })
+
                     this.formData = {
                         id: row.id,
                         name: row.name,
-                        role: row.roles,
-                        old_role: row.roles
+                        role: roles,
+                        old_role: roles
                     }
                 }
             },
             submitForm() {
-                this.$refs.permissionFrom.validate((valid) => {
+                this.$refs.permissionForm.validate((valid) => {
                     if (valid) {
                         this.sub_load = true
                         if (this.add_or_edit) {
@@ -234,7 +242,7 @@
         watch: {
             show() {
                 if (!this.show)
-                    this.$refs.permissionFrom.resetFields()
+                    this.formData = { name: '',  role: [] }
             }
         }
     }
