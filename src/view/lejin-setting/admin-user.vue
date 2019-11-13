@@ -44,20 +44,21 @@
                   :on-format-error="handleFormatError"
                   :max-size="2048"
                   :on-exceeded-size="handleMaxSize"
-                  :on-progress="handleProgress"
                   :on-success="handleSuccess"
                   :on-error="handleError"
                   :show-upload-list="false"
+                  :before-upload="beforeUpload"
                   :headers="headers"
                   style="width: 160px; height: 160px; margin-left: 63px;">
             <img v-if="formData.avatar" :src="formData.avatar" alt="头像"
-                 style="width: 100%; overflow: hidden"
+                 style="width: 100%; height: 100%; overflow: hidden; border: none;"
                  ref="avatar">
             <div v-else style="padding: 35px 0">
               <Icon type="md-images" size="52" style="color: #3399ff" />
-              <p>上传头像</p>
+              <p>{{ uploading ? '上传中...' : '上传头像' }}</p>
             </div>
           </Upload>
+          <Spin fix v-if="uploading" style="width: 160px; height: 160px; margin-left: 63px;"></Spin>
         </FormItem>
         <FormItem label="名称" prop="name">
           <Input v-model="formData.name" placeholder="请输入管理员名称" style="width: 95%;"></Input>
@@ -102,6 +103,7 @@
                 headers: {
                     'Authorization': getValue('token')
                 },
+                uploading: false,
                 columns: [
                     {
                         type: 'selection',
@@ -328,14 +330,16 @@
                 })
             },
             handleError(error, file) {
+                this.uploading = false
                 this.$Notice.error({
                     title: '上传失败',
                     desc: '系统错误。'
                 })
             },
             handleSuccess(res, file) {
-                if (res.errno === 0) {
-                    this.formData.avatar = res.data
+                this.uploading = false
+                if (res.code === 10000) {
+                    this.formData.avatar = res.data.paths[0]
                     this.$Notice.success({
                         title: '温馨提示',
                         desc: '图片： ' + file.name + ' 上传成功。'
@@ -348,22 +352,21 @@
                 }
             },
             handleFormatError(file) {
+                this.uploading = false
                 this.$Notice.warning({
                     title: '温馨提示',
                     desc: '文件： ' + file.name + ' 格式不正确，请上传 jpg , png 或 jpeg 格式的图片。'
                 }, 1.5)
             },
             handleMaxSize(file) {
+                this.uploading = false
                 this.$Notice.warning({
                     title: '温馨提示',
                     desc: '图片： ' + file.name + ' 太大，不能超过 2M。'
                 }, 1.5)
             },
-            handleProgress(event, file) {
-                // this.$Notice.info({
-                //     title: '温馨提示',
-                //     desc: '图片： ' + file.name + ' 正在上传。'
-                // })
+            beforeUpload() {
+                this.uploading = true
             },
             randPwd () {
                 const chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';    /****默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1****/
