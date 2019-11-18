@@ -43,6 +43,14 @@ export const editAdminUser = (data) => {
     data
   })
 }
+// 编辑管理员状态
+export const updateStatus = (data) => {
+  return axios.request({
+    url: '/admin_user',
+    method: 'patch',
+    data
+  })
+}
 // 删除管理员
 export const delAdminUser = (data) => {
   return axios.request({

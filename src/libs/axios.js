@@ -29,6 +29,14 @@ const errors = (error) => {
       });
     }
 
+    // 没有权限
+    if (error.code === 10403) {
+      iView.Modal.error({
+        title: '系统提示',
+        content: `<p>${error.message}</p>`,
+      });
+    }
+
     // 数据校验错误
     if (error.code === 10422) {
       iView.Modal.error({

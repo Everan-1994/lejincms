@@ -28,7 +28,7 @@
       <Divider orientation="left">{{ permission_info.name }}</Divider>
       <div v-if="permission_info.permission.length > 0">
         <Tag type="border"
-             :color="color[Math.floor((Math.random()*color.length))]"
+             :color="color[Math.floor((Math.random() * color.length))]"
              v-for="p in permission_info.permission"
              :key="p.id"
         >

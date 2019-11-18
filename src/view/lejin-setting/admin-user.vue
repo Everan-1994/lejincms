@@ -2,7 +2,7 @@
   <div>
     <Card>
       <p slot="title">
-        <Icon type="md-contacts" />
+        <Icon type="md-contacts"/>
         管理员列表
       </p>
       <div>
@@ -12,7 +12,12 @@
           </Col>
           <Col span="20" style="margin-bottom: 15px;">
               <span style="">
-                  <Input v-model="keyword" placeholder="名称&账号" class="mleft" style="width: 200px"/>
+                  <Input v-model="search.name" placeholder="名称" class="mleft" style="width: 150px"/>
+                  <Input v-model="search.username" placeholder="账号" class="mleft" style="width: 150px"/>
+                  <Select v-model="search.status" placeholder="账号状态" class="mleft" style="width:100px">
+                      <Option value="1">正常</Option>
+                      <Option value="0">冻结</Option>
+                  </Select>
                   <Button type="info" icon="ios-search" class="mleft" @click="query">查询</Button>
                   <Button type="default" icon="md-refresh" class="mleft" @click="resetQuery">重置查询</Button>
               </span>
@@ -35,8 +40,14 @@
       :title="modal_title"
       :mask-closable="false"
     >
-      <Form ref="adminUserForm" :model="formData" :rules="ruleValidate" :label-width="100" @submit.native.prevent>
-        <FormItem>
+      <Form ref="adminUserForm"
+            :model="formData"
+            :rules="ruleValidate"
+            :hide-required-mark="true"
+            :label-width="100"
+            :label-colon="true"
+            @submit.native.prevent>
+        <FormItem label="头像" prop="avatar">
           <Upload type="drag"
                   name="file"
                   :action="upload_url"
@@ -50,13 +61,14 @@
                   :before-upload="beforeUpload"
                   :headers="headers"
                   style="width: 160px; height: 160px; margin-left: 63px;">
-            <img v-if="formData.avatar" :src="formData.avatar" alt="头像"
+            <img v-if="formData.full_url" :src="formData.full_url" alt="头像"
                  style="width: 100%; height: 100%; overflow: hidden; border: none;"
                  ref="avatar">
             <div v-else style="padding: 35px 0">
-              <Icon type="md-images" size="52" style="color: #3399ff" />
+              <Icon type="md-images" size="52" style="color: #3399ff"/>
               <p>{{ uploading ? '上传中...' : '上传头像' }}</p>
             </div>
+            <Input v-model="formData.avatar" type="text" style="display: none;"></Input>
           </Upload>
           <Spin fix v-if="uploading" style="width: 160px; height: 160px; margin-left: 63px;"></Spin>
         </FormItem>
@@ -66,7 +78,7 @@
         <FormItem label="账号" prop="username">
           <Input v-model="formData.username" placeholder="请输入登录账号" style="width: 95%;"></Input>
         </FormItem>
-        <FormItem label="密码" prop="password">
+        <FormItem label="密码" v-bind:prop="add_or_edit ? 'password': ''">
           <Input v-model="formData.password" placeholder="请输入初始密码" style="width: 95%;">
             <Button slot="append" icon="ios-repeat" @click="randPwd">随机生成</Button>
           </Input>
@@ -86,11 +98,12 @@
 
 <script>
     import LeJinTable from '@/components/lejin-table'
-    import {getAdminUser, addAdminUser, editAdminUser, delAdminUser} from '@/api/user'
+    import {getAdminUser, addAdminUser, editAdminUser, delAdminUser, updateStatus} from '@/api/user'
     import {getRole} from '@/api/role'
     import {getValue} from '@/libs/util'
     import config from '@/config'
-    const { baseUrl } = config
+
+    const {baseUrl} = config
 
     export default {
         name: "admin_user",
@@ -117,7 +130,7 @@
                             return h('div', [
                                 h('Avatar', {
                                     props: {
-                                        src: params.row.avatar
+                                        src: params.row.full_url
                                     }
                                 }),
                                 h('span', {
@@ -131,17 +144,35 @@
                         key: 'username'
                     },
                     {
+                        title: '角色',
+                        key: 'role',
+                        render: (h, params) => {
+                            return h('Tag', {
+                                props: {
+                                    type: 'border',
+                                    color: params.row.roles.length > 0
+                                        ? this.color[Math.floor((Math.random() * this.color.length))]
+                                        : 'default'
+                                }
+                            }, params.row.roles.length > 0 ? params.row.roles[0].name : '未分配')
+                        }
+                    },
+                    {
                         title: '状态',
                         key: 'status',
                         align: 'center',
-                        width: 100,
+                        width: 120,
                         render: (h, params) => {
                             return h('i-switch', {
                                 props: {
                                     size: 'large',
                                     value: params.row.status,
                                     'true-value': 1,
-                                    'false-value': 0
+                                    'false-value': 0,
+                                    'true-color': '#13ce66',
+                                    'false-color': '#ff4949',
+                                    'loading': params.row.loading || false,
+                                    'before-change': () => this.switchBeforeChange(params.row)
                                 },
                                 scopedSlots: {
                                     open: () => h('span', '正常'),
@@ -149,26 +180,22 @@
                                 },
                                 on: {
                                     'on-change': (value) => {
-                                        // this.changeStatus(params.row.id, value);
+                                        this.changeStatus(params.row.id, value, params);
                                     }
-                                },
-                            });
+                                }
+                            })
                         }
                     },
                     {
                         title: '添加时间',
                         key: 'created_at',
                         align: 'center',
-                        width: 180,
                         render: (h, params) => {
-                            return h('span', [
-                                params.row.created_at
-                            ])
+                            return h('span', params.row.created_at)
                         }
                     },
                     {
                         title: '操作',
-                        width: 300,
                         align: 'center',
                         key: 'action',
                         render: (h, params) => {
@@ -200,8 +227,11 @@
                         {required: true, message: '账号不能为空', trigger: 'blur'}
                     ],
                     password: [
-                        {required: true, message: '密码不能为空', trigger: 'blur'}
-                    ]
+                        {required: true, message: '密码不能为空', trigger: 'change'}
+                    ],
+                    avatar: [
+                        {required: true, message: '请上头像', trigger: 'blur'}
+                    ],
                 },
                 data: [],
                 loading: false,
@@ -217,13 +247,19 @@
                     password: '', // 密码
                     role: '', // 单角色
                     status: 1, // 状态
-                    avatar: '' // 头像
+                    avatar: '', // 头像
+                    full_url: ''
                 },
+                color: ['primary', 'success', 'warning', 'error'],
                 modal_title: '添加管理员',
                 add_or_edit: true, // 新增或编辑
                 show: false, // modal
                 sub_load: false, // 提交状态
-                keyword: '', // 查询关键字
+                search: {
+                    name: '',
+                    username: '',
+                    status: ''
+                },
                 roles: [], // 角色集合
             }
         },
@@ -234,7 +270,7 @@
         methods: {
             tableDataInit() {
                 this.loading = true
-                getAdminUser({keyword: this.keyword})
+                getAdminUser(this.search)
                     .then((resp) => {
                         this.data = resp.data.data
                         this.loading = false
@@ -260,13 +296,14 @@
                     this.modal_title = '编辑管理员'
                     this.add_or_edit = false
 
-                    const roles = row.roles[0].name // 单角色
-
                     this.formData = {
                         id: row.id,
-                        name: row.name,
-                        role: roles,
-                        old_role: roles
+                        name: row.name, // 昵称
+                        username: row.username, // 账号
+                        password: row.password, // 密码
+                        role: row.roles[0].name, // 单角色
+                        avatar: row.avatar, // 头像
+                        full_url: row.full_url, // 头像完整 url
                     }
                 }
             },
@@ -298,11 +335,41 @@
                     }
                 })
             },
+            changeStatus(id, status, params) {
+                this.$set(params.row, 'loading', true)
+                updateStatus({id, status})
+                    .then((resp) => {
+                        this.$set(params.row, 'loading', false)
+                        this.$Message.success('状态更新成功');
+                    })
+                    .catch((err) => {
+                        this.$set(params.row, 'loading', false)
+                        this.data = []
+                        this.tableDataInit()
+                        this.$Message.error('状态更新失败');
+                    })
+            },
+            switchBeforeChange(row) {
+                let msg = row.status === 1 ? `冻结` : `启用`
+                return new Promise((resolve) => {
+                    this.$Modal.confirm({
+                        title: '系统提示',
+                        content: `您确认要 ${msg} ${row.name} 的用户吗？`,
+                        onOk: () => {
+                            resolve();
+                        }
+                    });
+                });
+            },
             query() {
                 this.tableDataInit()
             },
             resetQuery() {
-                this.name = ''
+                this.search = {
+                    name: '',
+                    username: '',
+                    status: ''
+                }
                 this.tableDataInit()
             },
             selectChange(arr) {
@@ -339,6 +406,7 @@
             handleSuccess(res, file) {
                 this.uploading = false
                 if (res.code === 10000) {
+                    this.formData.full_url = res.data.urls[0]
                     this.formData.avatar = res.data.paths[0]
                     this.$Notice.success({
                         title: '温馨提示',
@@ -368,8 +436,9 @@
             beforeUpload() {
                 this.uploading = true
             },
-            randPwd () {
-                const chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';    /****默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1****/
+            randPwd() {
+                const chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
+                /****默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1****/
                 const maxPos = chars.length;
                 var pwd = '';
                 for (let i = 0; i < 8; i++) {
@@ -380,9 +449,19 @@
         },
         watch: {
             show() {
-                if (!this.show)
-                    this.formData = { name: '',  role: [] }
-            }
+                if (!this.show) {
+                    this.$refs.adminUserForm.resetFields()
+                    this.formData = {
+                        name: '', // 昵称
+                        username: '', // 账号
+                        password: '', // 密码
+                        role: '', // 单角色
+                        status: 1, // 状态
+                        avatar: '', // 头像
+                        full_url: ''
+                    }
+                }
+            },
         }
     }
 </script>
@@ -391,6 +470,7 @@
   .mleft {
     margin-left: 5px;
   }
+
   .ivu-upload-drag {
     height: 100% !important;
     border-radius: 50% !important;
