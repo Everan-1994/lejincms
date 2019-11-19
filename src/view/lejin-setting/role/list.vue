@@ -2,7 +2,7 @@
   <div>
     <Row class="marginTop" style="margin-bottom: 10px">
       <Col span="4">
-        <Button type="primary" @click="handleEdit('add')" icon="md-add-circle">添加角色</Button>
+        <Button type="primary" ghost @click="handleEdit('add')" icon="md-add-circle">添加角色</Button>
       </Col>
       <Col span="20" style="margin-bottom: 15px;">
               <span style="">

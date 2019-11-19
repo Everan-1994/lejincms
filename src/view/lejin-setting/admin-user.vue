@@ -8,7 +8,7 @@
       <div>
         <Row class="marginTop" style="margin-bottom: 10px">
           <Col span="4">
-            <Button type="primary" @click="adminUserModal(false)" icon="md-add-circle">添加管理员</Button>
+            <Button type="primary" ghost @click="adminUserModal(false)" icon="md-add-circle">添加管理员</Button>
           </Col>
           <Col span="20" style="margin-bottom: 15px;">
               <span style="">

@@ -8,7 +8,7 @@
       <div>
         <Row class="marginTop" style="margin-bottom: 10px">
           <Col span="4">
-            <Button type="primary" @click="permissionModal(false)" icon="md-add-circle">添加权限</Button>
+            <Button type="primary" ghost @click="permissionModal(false)" icon="md-add-circle">添加权限</Button>
           </Col>
           <Col span="20" style="margin-bottom: 15px;">
               <span style="">
@@ -241,8 +241,10 @@
         },
         watch: {
             show() {
-                if (!this.show)
+                if (!this.show) {
+                    this.$refs.permissionForm.resetFields();
                     this.formData = { name: '',  role: [] }
+                }
             }
         }
     }

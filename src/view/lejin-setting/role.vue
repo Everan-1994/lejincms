@@ -2,7 +2,7 @@
   <div>
     <Card>
       <p slot="title">
-        <Icon type="ios-medal-outline" />
+        <Icon type="ios-school" />
         {{ currentComponet === 'List' ? '角色列表' : '角色管理' }}
       </p>
       <component @onEdit="handleEdit" @onGoBack="handleGoBack" :record="record" :is="currentComponet"></component>
