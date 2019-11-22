@@ -23,6 +23,7 @@ import { getMenu } from '@/api/menu'
 // 前端路由表
 const constantRouterComponents = {
   Main: Main,
+  parentView: parentView,
   'error_404': () => import('@/view/error-page/404'),
 
   // 需要动态引入的页面组件
@@ -31,7 +32,7 @@ const constantRouterComponents = {
   'Permission': () => import('@/view/lejin-setting/permission'), // 权限
   'Menus': () => import('@/view/lejin-setting/menus'), // 栏目
 
-
+   'Test': () => import('@/view/lejin-setting/test')
 }
 
 // 前端未找到页面路由（防止第一次没有路由数据跳转到404）
@@ -79,6 +80,10 @@ export const generator = (routerMap, parent) => {
       component: constantRouterComponents[item.component || item.name],
       // meta: 页面标题, 菜单图标...
       meta: item.meta
+    }
+    // 需要显示层级栏目
+    if (item.component === 'parentView') {
+      currentRouter.meta.showAlways = true
     }
     // 是否有子菜单，并递归处理
     if (item.children && item.children.length > 0) {

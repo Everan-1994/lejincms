@@ -23,10 +23,12 @@
           <Col span="6">
             <Alert show-icon>当前选择编辑：<span v-if="tree_dom">【{{ tree_dom }}】</span></Alert>
             <Tree
+              ref="tree"
               :data="menu"
               show-checkbox
               @on-select-change="selectTree"
               @on-toggle-expand="toggleExpand"
+              @on-check-change="changeSelect"
             ></Tree>
             <Spin size="large" fix v-if="loading"></Spin>
           </Col>
@@ -36,7 +38,7 @@
               <FormItem label="父级栏目">
                 <Select v-model="formData.pid">
                   <Option :value="0">顶级栏目</Option>
-                  <Option v-for="item in select_menu" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                  <Option v-for="item in select_menu" :value="item.value" :key="item.value" :disabled="item.disabled">{{ item.label }}</Option>
                 </Select>
               </FormItem>
               <FormItem label="栏目名称" prop="title">
@@ -49,7 +51,7 @@
                 <Input v-model="formData.name" placeholder="请输入路由名称"></Input>
               </FormItem>
               <FormItem label="栏目图标" prop="icon">
-                <Input v-model="formData.icon" placeholder="请选择栏目图标"></Input>
+                <icon-choose v-model="formData.icon"></icon-choose>
               </FormItem>
               <FormItem label="组件名称" prop="component">
                 <Input v-model="formData.component" placeholder="请输入组件名称"></Input>
@@ -83,18 +85,23 @@
 
 <script>
     import {getMenus, addMenu, editMenu, delMenu} from '@/api/menu'
-
+    import IconChoose from "_c/lejin-icon-choose"
     export default {
         name: "menus",
+        components: {
+            IconChoose
+        },
         data() {
             return {
                 menu: [],
                 select_menu: [], // 下拉栏目选项
                 floor: 0, // 层级
-                flag: false, // 切换展开与闭合
+                flag: true, // 切换展开与闭合
                 sub_load: false, // 提交 loading
                 loading: false,
                 tree_dom: '', // 进行编辑的节点
+                select_count: 0, // 勾选的数量
+                select_list: [], // 勾选集合
                 formData: {
                     id: 0,
                     pid: 0,
@@ -117,7 +124,7 @@
                         {required: true, message: '路由名称不能为空', trigger: 'blur'}
                     ],
                     icon: [
-                        {required: true, message: '栏目图标不能为空', trigger: 'blur'}
+                        {required: true, message: '栏目图标不能为空', trigger: 'click'}
                     ],
                     component: [
                         {required: true, message: '组件名称不能为空', trigger: 'blur'}
@@ -154,7 +161,7 @@
             menuInit(data) {
                 return data.map(item => {
                     const memu = {
-                        expand: false,
+                        expand: true,
                         id: item.id,
                         pid: item.meta.pid,
                         path: item.path,
@@ -186,6 +193,7 @@
                     const memu = {
                         value: item.id,
                         label: str + item.meta.title,
+                        disabled: false,
                     }
                     this.select_menu.push(memu)
                     // 是否有子菜单，并递归处理
@@ -220,7 +228,7 @@
                         if (this.formData.id > 0) {
                             editMenu(this.formData)
                                 .then((resp) => {
-                                    this.resp('更新成功', false)
+                                    this.resp('更新成功')
                                 })
                                 .catch((err) => {
                                     this.$Message.error('更新失败，请刷新后重试');
@@ -230,7 +238,7 @@
                         } else {
                             addMenu(this.formData)
                                 .then((resp) => {
-                                    this.resp('添加成功', false)
+                                    this.resp('添加成功')
                                 })
                                 .catch((err) => {
                                     this.$Message.error('添加失败，请刷新后重试');
@@ -241,13 +249,33 @@
                     }
                 })
             },
+            changeSelect(t) {
+                this.select_count = t.length
+                this.select_list = t;
+            },
             delTree() {
+                if (this.select_count <= 0) {
+                    this.$Message.warning("请勾选要删除的栏目");
+                    return;
+                }
                 this.$Modal.confirm({
                     title: '系统提示',
                     content: '<p>确定要删除吗？</p>',
-                    //loading: true,
+                    loading: true,
                     onOk: () => {
-                        
+                        let ids = [];
+                        this.select_list.forEach(function(e) {
+                            ids.push(e.id);
+                        });
+                        delMenu({ids}).then(res => {
+                            this.$Modal.remove();
+                            this.select_list = [];
+                            this.select_count = 0;
+                            this.resp('删除成功');
+                        }).catch(err => {
+                            this.$Message.error("删除失败");
+                            console.log('err', err)
+                        });
                     }
                 });
             },
@@ -261,8 +289,11 @@
                         f++
                     }
                 })
-                if (this.menu.length === t || this.menu.length === f) {
-                    this.flag = !this.flag
+                if (this.menu.length === t) {
+                    this.flag = true // 全部展开
+                }
+                if (this.menu.length === f) {
+                    this.flag = false // 全部折叠
                 }
             },
             selectTree(tree, dom) {
@@ -290,9 +321,22 @@
                         component: dom.component,
                         config: config,
                     }
+                    this.selectMenuSetDisabled(dom.id) // 设置自身不可选
                 } else {
                     this.resetForm()
                 }
+            },
+            selectMenuSetDisabled(id) {
+                const menu = this.select_menu
+                this.select_menu = []
+                menu.forEach(item => {
+                    const _memu = {
+                        value: item.value,
+                        label: item.label,
+                        disabled: id === item.value ? true : false
+                    }
+                    this.select_menu.push(_memu)
+                })
             },
             resetForm() {
                 this.tree_dom = ''
@@ -307,8 +351,14 @@
                     component: '',
                     config: ['not_cache'],
                 }
+                this.selectMenuSetDisabled(-1) // 初始化
+                // 去除选中状态
+                let data = this.$refs.tree.getSelectedNodes()[0];
+                if (data) {
+                    data.selected = false;
+                }
             },
-            resp(msg, bool) {
+            resp(msg, bool = false) {
                 this.$Message.success(msg);
                 this.sub_load = bool
                 this.resetForm()

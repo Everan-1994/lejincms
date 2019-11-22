@@ -27,6 +27,7 @@ const errors = (error) => {
         title: '系统提示',
         content: '<p>数据初始化失败，请稍后刷新重试</p>',
       });
+      return false
     }
 
     // 没有权限
@@ -35,6 +36,7 @@ const errors = (error) => {
         title: '系统提示',
         content: `<p>${error.message}</p>`,
       });
+      return false
     }
 
     // 数据校验错误
@@ -43,6 +45,16 @@ const errors = (error) => {
         title: '系统提示',
         content: `<p>${error.message}</p>`,
       });
+      return false
+    }
+
+    // 登录出错
+    if (error.code === 10003) {
+      iView.Modal.error({
+        title: '系统提示',
+        content: `<p>${error.message}</p>`,
+      });
+      return false
     }
 
     return Promise.reject(error)

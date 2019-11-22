@@ -51,10 +51,9 @@
                         }, 1000)
                     }
                 }).catch(err => {
-                    console.log(err)
+                    console.log('err', err)
                     setTimeout(() => {
                         this.loading = false
-                        this.$Message.error('请求出错');
                     }, 1000)
                 })
             }

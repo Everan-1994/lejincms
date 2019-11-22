@@ -2,7 +2,6 @@ import Main from '@/components/main'
 
 /**
  * 基础路由
- * @type {*[]}
  */
 export const constantRouterMap = [
   {
