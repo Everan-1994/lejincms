@@ -62,6 +62,11 @@ export default {
                     this.$router.push({
                         name: 'login'
                     })
+                }).catch(err => {
+                    this.$Modal.remove();
+                    this.$router.push({
+                        name: 'login'
+                    })
                 })
             }
         });
