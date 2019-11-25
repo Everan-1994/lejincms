@@ -211,7 +211,7 @@
                 this.menu = this.treeChangeExpand(this.menu, this.flag);
             },
             // 递归给树设置expand
-            treeChangeExpand(treeData, flag,) {
+            treeChangeExpand(treeData, flag) {
                 let _this = this;
                 for (let i = 0; treeData && i < treeData.length; i++) {
                     treeData[i].expand = flag

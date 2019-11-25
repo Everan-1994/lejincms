@@ -1,7 +1,7 @@
 import axios from '@/libs/api.request'
 
 // 角色列表
-export const getRole = ({name}) => {
+export const getRole = (name) => {
   return axios.request({
     url: '/role',
     method: 'get',

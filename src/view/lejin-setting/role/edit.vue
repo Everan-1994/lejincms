@@ -4,6 +4,20 @@
       <FormItem label="名称" prop="name">
         <Input v-model="formData.name" placeholder="请输入角色名称" style="width: 423px;"></Input>
       </FormItem>
+      <FormItem label="栏目">
+        <Button @click="exchangeTree">
+          <Icon type="md-add" v-if="!flag"/>
+          <Icon type="md-remove" v-else/>
+          {{ !flag ? '展开栏目' : '折叠栏目' }}
+        </Button>
+        <Tree
+          ref="tree"
+          :data="menu"
+          show-checkbox
+          @on-select-change="selectTree"
+          @on-toggle-expand="toggleExpand"
+        ></Tree>
+      </FormItem>
       <FormItem label="权限">
         <Transfer
           :list-style="style"
@@ -26,6 +40,7 @@
 
 <script>
     import {getPermission} from '@/api/permission'
+    import {getMenus} from '@/api/menu'
     import {addRole, editRole} from "@/api/role";
 
     export default {
@@ -45,6 +60,7 @@
                 },
                 formData: {
                     name: '',
+                    menus: [],
                     permissions: []
                 },
                 rules: {
@@ -52,14 +68,17 @@
                         {required: true, message: '角色名称不能为空', trigger: 'blur'}
                     ],
                 },
+                menu: [],
                 permission: [],
                 loading: true,
                 stay: false,
-                sub_load: false
+                sub_load: false,
+                flag: true, // 切换展开与闭合
             }
         },
         methods: {
             initPermission() {
+                // 权限
                 getPermission()
                     .then((resp) => {
                         const data = resp.data.data
@@ -76,6 +95,22 @@
                             this.record.permissions.forEach((item) => {
                                 this.formData.permissions.push(item.id)
                             })
+                        }
+                        this.loading = false
+                    })
+                    .catch((err) => {
+                        console.log('err', err)
+                    })
+                // 栏目
+                getMenus()
+                    .then((resp) => {
+                        if (this.record !== 'add') {
+                            this.record.menus.forEach((item) => {
+                                this.formData.menus.push(item.id)
+                            })
+                            this.menu = this.menuInit(resp.data.data, this.formData.menus)
+                        } else {
+                            this.menu = this.menuInit(resp.data.data)
                         }
 
                         this.loading = false
@@ -117,6 +152,58 @@
                         }
                     }
                 })
+            },
+            menuInit(data, selected = []) {
+                return data.map(item => {
+                    const memu = {
+                        expand: true,
+                        id: item.id,
+                        name: item.name,
+                        title: item.meta.title,
+                        selected: selected.includes(item.id)
+                    }
+                    // 是否有子菜单，并递归处理
+                    if (item.children && item.children.length > 0) {
+                        // Recursion
+                        memu.children = this.menuInit(item.children, selected)
+                    }
+                    return memu
+                })
+            },
+            exchangeTree() {
+                this.flag = !this.flag
+                this.menu = this.treeChangeExpand(this.menu, this.flag);
+            },
+            // 递归给树设置expand
+            treeChangeExpand(treeData, flag) {
+                let _this = this;
+                for (let i = 0; treeData && i < treeData.length; i++) {
+                    treeData[i].expand = flag
+                    if (treeData[i].children) {
+                        treeData[i].children = _this.treeChangeExpand(treeData[i].children, flag)
+                    }
+                }
+                return treeData;
+            },
+            selectTree(tree, dom) {
+                this.formData.menus.push(dom.id)
+            },
+            toggleExpand() {
+                let t = 0 // 展开计数
+                let f = 0 // 折叠计数
+                this.menu.forEach(item => {
+                    if (item.expand) {
+                        t++
+                    } else {
+                        f++
+                    }
+                })
+                if (this.menu.length === t) {
+                    this.flag = true // 全部展开
+                }
+                if (this.menu.length === f) {
+                    this.flag = false // 全部折叠
+                }
             },
             resp(msg, bool) {
                 this.$Message.success(msg);
