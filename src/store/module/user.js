@@ -8,7 +8,8 @@ import {
   restoreTrash,
   getUnreadCount
 } from '@/api/user'
-import { setValue, getValue, delValue } from '@/libs/util'
+import { setValue, delValue, setTagNavListInLocalstorage } from '@/libs/util'
+import store from '@/store'
 
 export default {
   state: {
@@ -75,11 +76,15 @@ export default {
           delValue('token')
           delValue('username')
           delValue('avatar')
+          store.dispatch('removeRouterAction')
+          setTagNavListInLocalstorage([])
           resolve(res)
         }).catch(err => {
           delValue('token')
           delValue('username')
           delValue('avatar')
+          store.dispatch('removeRouterAction')
+          setTagNavListInLocalstorage([])
           reject(err)
         })
       })

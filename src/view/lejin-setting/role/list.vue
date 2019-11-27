@@ -25,17 +25,32 @@
     >
     </le-jin-table>
     <Modal v-model="showModal" :mask-closable="false" :closable="false">
-      <Divider orientation="left">{{ permission_info.name }}</Divider>
-      <div v-if="permission_info.permission.length > 0">
-        <Tag type="border"
-             :color="color[Math.floor((Math.random() * color.length))]"
-             v-for="p in permission_info.permission"
-             :key="p.id"
-        >
-          {{ p.name}}
-        </Tag>
+      <div v-if="showType === 'menu'">
+        <Divider orientation="left"><Tag type="dot" color="primary">{{ menu_info.name }}</Tag> 角色拥有的栏目</Divider>
+        <div v-if="menu_info.menu.length > 0">
+          <Tag type="border"
+               :color="color[Math.floor((Math.random() * color.length))]"
+               v-for="m in menu_info.menu"
+               :key="m.id"
+          >
+            {{ m.title }}
+          </Tag>
+        </div>
+        <div v-else style="text-align: center;"><Tag type="border">暂未分配栏目</Tag></div>
       </div>
-      <div v-else style="text-align: center;"><Tag type="dot" color="warning">暂无权限</Tag></div>
+      <div v-else>
+        <Divider orientation="left"><Tag type="dot" color="primary">{{ permission_info.name }}</Tag> 角色拥有的权限</Divider>
+        <div v-if="permission_info.permission.length > 0">
+          <Tag type="border"
+               :color="color[Math.floor((Math.random() * color.length))]"
+               v-for="p in permission_info.permission"
+               :key="p.id"
+          >
+            {{ p.name }}
+          </Tag>
+        </div>
+        <div v-else style="text-align: center;"><Tag type="border">暂未分配权限</Tag></div>
+      </div>
       <div slot="footer">
         <Button type="error" size="small" @click="closeModal">关闭</Button>
       </div>
@@ -84,6 +99,22 @@
                             return h('div', [
                                 h('Button', {
                                     props: {
+                                        type: 'warning',
+                                        size: 'small',
+                                        icon: 'ios-keypad'
+                                    },
+                                    style: {
+                                        marginRight: '5px',
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.showModal = true
+                                            this.showAllPermission('menu', params.row)
+                                        }
+                                    }
+                                }, '栏目'),
+                                h('Button', {
+                                    props: {
                                         type: 'success',
                                         size: 'small',
                                         icon: 'md-finger-print'
@@ -94,7 +125,7 @@
                                     on: {
                                         click: () => {
                                             this.showModal = true
-                                            this.showAllPermission(params.row)
+                                            this.showAllPermission('permission', params.row)
                                         }
                                     }
                                 }, '权限'),
@@ -123,9 +154,14 @@
                 loading: false,
                 showPage: false,
                 showModal: false,
+                showType: '', // 权限或栏目
                 permission_info: {
-                    role: '',
+                    name: '',
                     permission: []
+                },
+                menu_info: {
+                    name: '',
+                    menu: []
                 },
                 color: [
                     'default', 'primary', 'success', 'warning', 'error', 'blue', 'green', 'red', 'yellow',
@@ -192,10 +228,19 @@
                     }
                 })
             },
-            showAllPermission(row) {
-                this.permission_info = {
-                    name: row.name,
-                    permission: row.permissions
+            showAllPermission(type, row) {
+                if (type === 'menu') {
+                    this.showType = 'menu'
+                    this.menu_info = {
+                        name: row.name,
+                        menu: row.menus
+                    }
+                } else {
+                    this.showType = 'permission'
+                    this.permission_info = {
+                        name: row.name,
+                        permission: row.permissions
+                    }
                 }
             },
             closeModal() {
@@ -203,6 +248,10 @@
                 this.permission_info = {
                     name: '',
                     permission: []
+                }
+                this.menu_info = {
+                    name: '',
+                    menu: []
                 }
             },
             changePage(value) {

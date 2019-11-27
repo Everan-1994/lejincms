@@ -4,9 +4,7 @@ import { constantRouterMap as routes } from './base-router'
 import store from '@/store'
 import iView from 'view-design'
 import { getValue, setTitle, timeFix } from '@/libs/util'
-import config from '@/config'
-
-const { baseUrl } = config
+import { homeName } from '@/config'
 
 Vue.use(Router)
 

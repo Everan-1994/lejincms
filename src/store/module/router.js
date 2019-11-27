@@ -25,6 +25,10 @@ const router = {
           resolve()
         })
       })
+    },
+    removeRouterAction({commit}) {
+      commit('SET_ROUTERS', []) // 清除动态菜单
+      commit('SET_ACTIONS', []) // 清除权限
     }
   }
 }

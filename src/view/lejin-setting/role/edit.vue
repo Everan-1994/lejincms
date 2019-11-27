@@ -4,6 +4,16 @@
       <FormItem label="名称" prop="name">
         <Input v-model="formData.name" placeholder="请输入角色名称" style="width: 423px;"></Input>
       </FormItem>
+      <FormItem label="权限">
+        <Transfer
+          :list-style="style"
+          :titles="titles"
+          :data="permission"
+          :target-keys="formData.permissions"
+          filterable
+          @on-change="handleChange">
+        </Transfer>
+      </FormItem>
       <FormItem label="栏目">
         <Button @click="exchangeTree">
           <Icon type="md-add" v-if="!flag"/>
@@ -14,19 +24,8 @@
           ref="tree"
           :data="menu"
           show-checkbox
-          @on-select-change="selectTree"
           @on-toggle-expand="toggleExpand"
         ></Tree>
-      </FormItem>
-      <FormItem label="权限">
-        <Transfer
-          :list-style="style"
-          :titles="titles"
-          :data="permission"
-          :target-keys="formData.permissions"
-          filterable
-          @on-change="handleChange">
-        </Transfer>
       </FormItem>
       <FormItem style="margin-top: 5%;">
         <Button type="primary" @click="submitForm()" icon="md-checkbox-outline" :loading="sub_load">提 交</Button>
@@ -105,9 +104,19 @@
                 getMenus()
                     .then((resp) => {
                         if (this.record !== 'add') {
+                            let ids = []
+                            let pids = []
                             this.record.menus.forEach((item) => {
-                                this.formData.menus.push(item.id)
+                                ids.push(item.id)
+                                pids.push(item.pid)
                             })
+
+                            for (let item of new Set(ids)) {
+                                if (!new Set(pids).has(item)) {
+                                    this.formData.menus.push(item) // 只要子节点
+                                }
+                            }
+
                             this.menu = this.menuInit(resp.data.data, this.formData.menus)
                         } else {
                             this.menu = this.menuInit(resp.data.data)
@@ -126,6 +135,12 @@
                 this.formData.permissions = newTargetKeys;
             },
             submitForm() {
+                const nodes = this.$refs.tree.getCheckedAndIndeterminateNodes() // 勾选和半勾选的节点数组
+                this.formData.menus = []
+                nodes.forEach(item => {
+                    this.formData.menus.push(item.id)
+                })
+
                 this.$refs.formData.validate((valid) => {
                     if (valid) {
                         this.sub_load = true
@@ -135,7 +150,6 @@
                                     this.resp('添加成功', false)
                                 })
                                 .catch((err) => {
-                                    this.$Message.error('添加失败，请刷新后重试');
                                     this.sub_load = false
                                     console.log('err', err)
                                 })
@@ -145,7 +159,6 @@
                                     this.resp('更新成功', false)
                                 })
                                 .catch((err) => {
-                                    this.$Message.error('更新失败，请刷新后重试');
                                     this.sub_load = false
                                     console.log('err', err)
                                 })
@@ -153,19 +166,19 @@
                     }
                 })
             },
-            menuInit(data, selected = []) {
+            menuInit(data, menus = []) {
                 return data.map(item => {
                     const memu = {
                         expand: true,
                         id: item.id,
                         name: item.name,
                         title: item.meta.title,
-                        selected: selected.includes(item.id)
+                        checked: menus.includes(item.id), // 选中
                     }
                     // 是否有子菜单，并递归处理
                     if (item.children && item.children.length > 0) {
                         // Recursion
-                        memu.children = this.menuInit(item.children, selected)
+                        memu.children = this.menuInit(item.children, menus)
                     }
                     return memu
                 })
@@ -184,9 +197,6 @@
                     }
                 }
                 return treeData;
-            },
-            selectTree(tree, dom) {
-                this.formData.menus.push(dom.id)
             },
             toggleExpand() {
                 let t = 0 // 展开计数
@@ -208,9 +218,7 @@
             resp(msg, bool) {
                 this.$Message.success(msg);
                 this.sub_load = bool
-                if (this.stay) {
-                    this.initPermission() // 初始化页面
-                } else {
+                if (!this.stay) {
                     this.handleGoBack() // 跳转角色列表页
                 }
             }
