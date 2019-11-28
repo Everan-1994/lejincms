@@ -4,7 +4,7 @@ import { constantRouterMap as routes } from './base-router'
 import store from '@/store'
 import iView from 'view-design'
 import { getValue, setTitle, timeFix } from '@/libs/util'
-import { homeName } from '@/config'
+import config from '@/config'
 
 Vue.use(Router)
 
@@ -13,8 +13,8 @@ const router = new Router({
   mode: 'history'
 })
 
+const homeName = config
 const LOGIN_PAGE_NAME = 'login'
-
 const whiteList = [LOGIN_PAGE_NAME] // 免登陆白名单
 
 router.beforeEach((to, from, next) => {
