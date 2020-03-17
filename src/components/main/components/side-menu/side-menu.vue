@@ -160,8 +160,4 @@
   .sbg {
     background: #2d8cf0;
   }
-
-  .ivu-dropdown-transfer {
-    left: 82px !important;
-  }
 </style>
